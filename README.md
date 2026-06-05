@@ -9,11 +9,11 @@ pattern and **Entity Framework Core** over a local **SQLite** database.
 
 The application manages three things and the relationships between them:
 
-- **Cars** — the rental fleet. Each car has a brand, model, year, license plate, a
+- **Cars** - the rental fleet. Each car has a brand, model, year, license plate, a
   daily rental price, and an availability status.
-- **Renters** — the customers. Each renter has a name, driver's license number,
+- **Renters** - the customers. Each renter has a name, driver's license number,
   phone number, and email.
-- **Documents (rental contracts)** — each contract assigns one car to one renter for
+- **Documents (rental contracts)** - each contract assigns one car to one renter for
   a chosen date range. The total cost is calculated automatically from the car's
   daily price and the number of days.
 
@@ -23,7 +23,7 @@ Around this core data, the system provides:
   validation on every form.
 - Per-section search with field-specific filters (e.g. find cars by brand, year, or
   availability).
-- **Automatic availability management** — a car is marked unavailable while it has an
+- **Automatic availability management** - a car is marked unavailable while it has an
   active contract, can't be double-booked, and is automatically freed again once its
   contract's end date passes (or when the contract is deleted).
 
@@ -32,16 +32,16 @@ Around this core data, the system provides:
 The MVVM structure and the `IDataService` abstraction make the system
 straightforward to extend. Some natural next steps:
 
-- **New fields** — add a property to a model in `Models/`, surface it in the matching
+- **New fields** - add a property to a model in `Models/`, surface it in the matching
   view model and view, and EF Core will include it in the database.
-- **New entities** — add a model, register it as a `DbSet` in
+- **New entities** - add a model, register it as a `DbSet` in
   `Data/DatabaseContext.cs`, add the corresponding methods to `IDataService` /
   `DataService`, then build a view model and view following the existing
   add/edit pattern.
-- **Swap or extend the data layer** — because all data access goes through the
+- **Swap or extend the data layer** - because all data access goes through the
   `IDataService` interface, you can replace SQLite with another database provider,
   or add a mock implementation for testing, without touching the view models.
-- **Reporting & analytics** — add new read methods to the data service (e.g. revenue
+- **Reporting & analytics** - add new read methods to the data service (e.g. revenue
   per period, most-rented cars) and a view to display them.
 - **Authentication / roles, payment tracking, PDF contract export, or EF Core
   migrations** for versioned schema changes are all additive on top of the current
@@ -52,60 +52,60 @@ straightforward to extend. Some natural next steps:
 The application lives in the `CarRentalSystem_WPF/` project, organised by
 responsibility:
 
-### `Models/` — the data entities
+### `Models/` - the data entities
 
 Plain C# classes that define the shape of the data (and the database tables).
 
-- **`Car.cs`** — a vehicle: brand, model, year, license plate, daily price, and
+- **`Car.cs`** - a vehicle: brand, model, year, license plate, daily price, and
   availability flag.
-- **`Renter.cs`** — a customer: full name, driver's license number, phone, and email.
-- **`Paperwork.cs`** — a rental contract linking a car and a renter over a date
+- **`Renter.cs`** - a customer: full name, driver's license number, phone, and email.
+- **`Paperwork.cs`** - a rental contract linking a car and a renter over a date
   range, with the total cost. Also exposes a few display-only properties used by the
   UI grid.
 
-### `Data/` — database access
+### `Data/` - database access
 
-- **`DatabaseContext.cs`** — the Entity Framework Core `DbContext`. Configures the
+- **`DatabaseContext.cs`** - the Entity Framework Core `DbContext`. Configures the
   SQLite connection, declares the Cars / Renters / Paperworks tables, and defines
   keys, required fields, and the relationships between contracts, cars, and renters.
 
-### `Services/` — business logic and data operations
+### `Services/` - business logic and data operations
 
 The single layer that talks to the database, hiding EF Core from the rest of the app.
 
-- **`IDataService.cs`** — the interface defining all available operations (CRUD for
+- **`IDataService.cs`** - the interface defining all available operations (CRUD for
   cars, renters, and documents, plus database setup and expired-contract handling).
-- **`DataService.cs`** — the implementation. Performs the actual database reads and
+- **`DataService.cs`** - the implementation. Performs the actual database reads and
   writes and contains the availability rules (e.g. freeing a car when its contract
   expires or is deleted).
 
-### `ViewModels/` — presentation logic
+### `ViewModels/` - presentation logic
 
 The "VM" of MVVM: each view model exposes data and commands that the views bind to,
 keeping logic out of the UI markup.
 
-- **`MainWindowViewModel.cs`** — drives the main window: switches between the Cars,
+- **`MainWindowViewModel.cs`** - drives the main window: switches between the Cars,
   Renters, and Documents sections, loads data, and runs the search/filter logic.
-- **`AddCarViewModel.cs`** — add/edit/delete logic and validation for a car.
-- **`AddRenterViewModel.cs`** — add/edit/delete logic and validation for a renter
+- **`AddCarViewModel.cs`** - add/edit/delete logic and validation for a car.
+- **`AddRenterViewModel.cs`** - add/edit/delete logic and validation for a renter
   (including email-format validation).
-- **`AddDocumentViewModel.cs`** — add/edit/delete logic for a rental contract:
+- **`AddDocumentViewModel.cs`** - add/edit/delete logic for a rental contract:
   offers only available cars, calculates the cost live, and enforces the
   no-double-booking rule.
-- **`ViewModelBase.cs`** — shared base class implementing `INotifyPropertyChanged`
+- **`ViewModelBase.cs`** - shared base class implementing `INotifyPropertyChanged`
   so the UI updates when data changes.
-- **`RelayCommand.cs`** — a reusable `ICommand` that lets view models expose button
+- **`RelayCommand.cs`** - a reusable `ICommand` that lets view models expose button
   actions to the views.
 
-### `Views/` — the user interface (WPF / XAML)
+### `Views/` - the user interface (WPF / XAML)
 
 The windows the user sees, bound to the view models above.
 
-- **`MainWindow.xaml`** — the main screen with section navigation, the search/filter
+- **`MainWindow.xaml`** - the main screen with section navigation, the search/filter
   bar, and the data grid.
-- **`AddCarWindow.xaml`** — dialog for adding or editing a car.
-- **`AddRenterWindow.xaml`** — dialog for adding or editing a renter.
-- **`AddDocumentWindow.xaml`** — dialog for creating or editing a rental contract.
+- **`AddCarWindow.xaml`** - dialog for adding or editing a car.
+- **`AddRenterWindow.xaml`** - dialog for adding or editing a renter.
+- **`AddDocumentWindow.xaml`** - dialog for creating or editing a rental contract.
 
 Each `.xaml` file has a matching `.xaml.cs` code-behind file.
 
